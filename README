@@ -1,0 +1,26 @@
+1. Oozie是开源的Hadoop生态体系的DAG工作流管理框架。
+
+2. Pyoozie是python写的模拟oozie的工作流管理框架。
+
+3. pyoozie支持oozie的control flow action: start, end, fork, kill, decision。其中，oozie的join action已经放在fork里处理，暂不支持sub work flow action。
+
+4. Ooize支持多种processing action，目前pyoozie只实现了pig action。
+
+5. 引擎执行的流程：
+初始化，设置action keeper
+start()：寻找start节点，然后将第一个要执行的action name传给run函数。获取run函数的返回值。打印中止信息。
+run(action_name)：
+    进入while 循环。
+        获取action的对象。
+        如果action是processing，调用action的run处理，action.run执行，获取返回值。如果返回值是0，则得到action的下一个节点的name，下一个循环。
+        如果action是control：
+            如果是end, 返回0，退出。
+            如果是kill，返回killed，退出。
+            如果是decision，计算条件，然后得到下一个要执行的action_name，进入下一个循环。
+            如果是fork，调用它的run，多线程执行多个任务，获取返回值。然后得到下一个action_name，下一个循环。
+
+6. Pig-DAG在hadoop 2.5 + pig 0.13 + python2.7调试运行成功。
+
+7. 系统需安装Hadoop和pig，请确认hadoop-x.x.x/bin目录已经加入到PATH，也就是说，在命令行执行'hdfs dfs -ls /'能成功。
+
+8. 执行测试 python test/t1.py
